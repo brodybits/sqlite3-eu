@@ -142,8 +142,8 @@ void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv
   if (argc < 1) {
     sqlite3_result_null(context);
   } else if (sqlite3_value_bytes(argv[0]) == 0) {
-    // empty string:'
-    sqlite3_result_text(context, "", 0, NULL);
+    // empty string:
+    sqlite3_result_text(context, sqlite3_malloc(0), 0, NULL);
   } else {
     // THANKS for guidance:
     // http://www.sqlite.org/cgi/src/artifact/43916c1d8e6da5d1
@@ -183,8 +183,8 @@ void sqlite3_lower_eu(sqlite3_context * context, int argc, sqlite3_value ** argv
   if (argc < 1) {
     sqlite3_result_null(context);
   } else if (sqlite3_value_bytes(argv[0]) == 0) {
-    // empty string:'
-    sqlite3_result_text(context, "", 0, NULL);
+    // empty string:
+    sqlite3_result_text(context, sqlite3_malloc(0), 0, NULL);
   } else {
     // THANKS for guidance:
     // http://www.sqlite.org/cgi/src/artifact/43916c1d8e6da5d1
