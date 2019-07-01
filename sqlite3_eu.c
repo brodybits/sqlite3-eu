@@ -219,15 +219,15 @@ void sqlite3_lower_eu(sqlite3_context * context, int argc, sqlite3_value ** argv
   }
 }
 
-int sqlite3_eu_init(sqlite3 * db)
+int sqlite3_eu_init(sqlite3 * db, const char * upper_eu_name, const char * lower_eu_name)
 {
     init_map();
 
     /* TBD ignore result for now, at least */
 
-    sqlite3_create_function_v2(db, "UPPER_EU", 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_upper_eu, NULL, NULL, NULL);
+    sqlite3_create_function_v2(db, upper_eu_name, 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_upper_eu, NULL, NULL, NULL);
 
-    sqlite3_create_function_v2(db, "LOWER_EU", 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_lower_eu, NULL, NULL, NULL);
+    sqlite3_create_function_v2(db, lower_eu_name, 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_lower_eu, NULL, NULL, NULL);
 
     return SQLITE_OK;
 }

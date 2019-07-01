@@ -25,7 +25,7 @@ int main() {
   sqlite3 * db;
   sqlite3_open(":memory:", &db);
 
-  sqlite3_eu_init(db);
+  sqlite3_eu_init(db, "UPPER_EU", "LOWER_EU");
 
   sqlite3_exec(db, "SELECT UPPER_EU('Alice abc é á ß €123')", cb, NULL, NULL);
 

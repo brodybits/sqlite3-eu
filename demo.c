@@ -13,7 +13,7 @@ int main() {
   sqlite3 * db;
   sqlite3_open(":memory:", &db);
 
-  sqlite3_eu_init(db);
+  sqlite3_eu_init(db, "UPPER_EU", "LOWER_EU");
 
   printf("* TRY SELECT UPPER_EU with mixed string:\n");
 
