@@ -23,5 +23,9 @@ int main() {
 
   sqlite3_exec(db, "SELECT UPPER_EU('')", cb, NULL, NULL);
 
+  printf("* TRY SELECT LOWER_EU with mixed string:\n");
+
+  sqlite3_exec(db, "SELECT LOWER_EU('DE100 😊 Chris DEF 😊 ẞ 😊 Á 😊 É 😊 €456')", cb, NULL, NULL);
+
   return 0;
 }

@@ -12,21 +12,26 @@
 
 #define US_ASCII_MAX 0x7f
 
-static uint16_t * eu_map = NULL;
+static uint16_t * eu_upper_map = NULL;
+static uint16_t * eu_lower_map = NULL;
 
 #define EU_MAP_ALLOC() \
   do { \
-    eu_map = sqlite3_malloc(EU_MAP_SIZE); \
+    if (eu_upper_map == NULL) { \
+      eu_upper_map = sqlite3_malloc(EU_MAP_SIZE); \
+      eu_lower_map = sqlite3_malloc(EU_MAP_SIZE); \
+    } \
   } while(0)
 
 #define EU_MAP_ENTRY(lower, upper) \
   do { \
-    eu_map[lower] = upper; \
+    eu_upper_map[lower] = upper; \
+    eu_lower_map[upper] = lower; \
   } while(0)
 
 static
 void init_map() {
-  if (eu_map != NULL) return;
+  if (eu_upper_map != NULL) return;
 
   EU_MAP_ALLOC();
 
@@ -34,11 +39,16 @@ void init_map() {
     int i;
 
     for (i=0; i<EU_MAP_SIZE; ++i) {
-      eu_map[i] = i;
+      eu_upper_map[i] = i;
+      eu_lower_map[i] = i;
     }
 
     for (i=0; i<US_ASCII_MAX; ++i) {
-      eu_map[i] = toupper(i);
+      eu_upper_map[i] = toupper(i);
+    }
+
+    for (i=0; i<US_ASCII_MAX; ++i) {
+      eu_lower_map[i] = tolower(i);
     }
   }
 
@@ -128,7 +138,7 @@ void init_map() {
 }
 
 static
-void sqlite3_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
+void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
   if (argc < 1) {
     sqlite3_result_null(context);
   } else if (sqlite3_value_bytes(argv[0]) == 0) {
@@ -155,7 +165,48 @@ void sqlite3_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
       uint16_t u = (u1 << 8) | u0;
 
       if (u < EU_MAP_SIZE) {
-        int16_t uo = eu_map[u];
+        int16_t uo = eu_upper_map[u];
+        out[i] = uo & 0xff;
+        out[i+1] = uo >> 8;
+      } else {
+        out[i] = u0;
+        out[i+1] = u1;
+      }
+    }
+
+    sqlite3_result_text16le(context, out, inlen, sqlite3_free);
+  }
+}
+
+static
+void sqlite3_lower_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
+  if (argc < 1) {
+    sqlite3_result_null(context);
+  } else if (sqlite3_value_bytes(argv[0]) == 0) {
+    // empty string:'
+    sqlite3_result_text(context, "", 0, NULL);
+  } else {
+    // THANKS for guidance:
+    // http://www.sqlite.org/cgi/src/artifact/43916c1d8e6da5d1
+    // (src/func.c:hexFunc)
+    sqlite3_value * first = argv[0];
+
+    const uint8_t * in = sqlite3_value_text16le(first);
+
+    const int inlen = sqlite3_value_bytes16(first);
+
+    uint8_t * out = sqlite3_malloc(inlen);
+
+    int i;
+
+    for (i=0; i<inlen; i += 2) {
+      uint8_t u0 = in[i];
+      uint8_t u1 = in[i+1];
+
+      uint16_t u = (u1 << 8) | u0;
+
+      if (u < EU_MAP_SIZE) {
+        int16_t uo = eu_lower_map[u];
         out[i] = uo & 0xff;
         out[i+1] = uo >> 8;
       } else {
@@ -172,5 +223,11 @@ int sqlite3_eu_init(sqlite3 * db)
 {
     init_map();
 
-    return sqlite3_create_function_v2(db, "UPPER_EU", 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_eu, NULL, NULL, NULL);
+    /* TBD ignore result for now, at least */
+
+    sqlite3_create_function_v2(db, "UPPER_EU", 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_upper_eu, NULL, NULL, NULL);
+
+    sqlite3_create_function_v2(db, "LOWER_EU", 1, SQLITE_ANY | SQLITE_DETERMINISTIC, NULL, sqlite3_lower_eu, NULL, NULL, NULL);
+
+    return SQLITE_OK;
 }
