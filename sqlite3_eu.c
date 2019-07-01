@@ -12,16 +12,8 @@
 
 #define US_ASCII_MAX 0x7f
 
-static uint16_t * eu_upper_map = NULL;
-static uint16_t * eu_lower_map = NULL;
-
-#define EU_MAP_ALLOC() \
-  do { \
-    if (eu_upper_map == NULL) { \
-      eu_upper_map = sqlite3_malloc(EU_MAP_SIZE); \
-      eu_lower_map = sqlite3_malloc(EU_MAP_SIZE); \
-    } \
-  } while(0)
+static uint16_t eu_upper_map[EU_MAP_SIZE] = { 0x30 };
+static uint16_t eu_lower_map[EU_MAP_SIZE] = { 0x30 };
 
 #define EU_MAP_ENTRY(lower, upper) \
   do { \
@@ -31,10 +23,6 @@ static uint16_t * eu_lower_map = NULL;
 
 static
 void init_map() {
-  if (eu_upper_map != NULL) return;
-
-  EU_MAP_ALLOC();
-
   {
     int i;
 
