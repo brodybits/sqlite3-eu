@@ -15,11 +15,11 @@ int main() {
 
   sqlite3_eu_init(db);
 
-  printf("* TRY with mixed string:\n");
+  printf("* TRY SELECT UPPER_EU with mixed string:\n");
 
   sqlite3_exec(db, "SELECT UPPER_EU('Alice 😊 é 😊 á 😊 ß 😊 €123')", cb, NULL, NULL);
 
-  printf("* TRY with empty string:\n");
+  printf("* TRY SELECT UPPER_EU with empty string:\n");
 
   sqlite3_exec(db, "SELECT UPPER_EU('')", cb, NULL, NULL);
 
