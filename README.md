@@ -2,7 +2,7 @@
 
 Add EU string function to sqlite3: UPPER_EU
 
-**LICENSE:** MIT or Apache 2.0
+**LICENSE:** MIT
 
 ## External dependencies
 
