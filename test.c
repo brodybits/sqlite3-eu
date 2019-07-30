@@ -24,6 +24,7 @@ int assert_result_matches(void * expected_vp, int result_count, char ** result, 
 int assert_result_is_null(void * ignored, int result_count, char ** result, char ** ignored2)
 {
   assert(result_count == 1);
+  if (!!result[0]) TESTTRACE("UNEXPECTED RESULT TEXT: %s\n", result[0]);
   assert(result[0] == NULL);
   TESTTRACE("- OK\n\n");
   return 0;
