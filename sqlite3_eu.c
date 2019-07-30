@@ -126,7 +126,7 @@ void init_map() {
 }
 
 static
-void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
+void apply_eu_string_map(uint16_t * eu_string_map, sqlite3_context * context, int argc, sqlite3_value ** argv) {
   if (argc < 1) {
     sqlite3_result_null(context);
   } else if (sqlite3_value_bytes(argv[0]) == 0) {
@@ -153,7 +153,7 @@ void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv
       uint16_t u = (u1 << 8) | u0;
 
       if (u < EU_MAP_SIZE) {
-        int16_t uo = eu_upper_map[u];
+        int16_t uo = eu_string_map[u];
         out[i] = uo & 0xff;
         out[i+1] = uo >> 8;
       } else {
@@ -167,44 +167,13 @@ void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv
 }
 
 static
+void sqlite3_upper_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
+  apply_eu_string_map(eu_upper_map, context, argc, argv);
+}
+
+static
 void sqlite3_lower_eu(sqlite3_context * context, int argc, sqlite3_value ** argv) {
-  if (argc < 1) {
-    sqlite3_result_null(context);
-  } else if (sqlite3_value_bytes(argv[0]) == 0) {
-    // empty string:
-    sqlite3_result_text(context, sqlite3_malloc(0), 0, NULL);
-  } else {
-    // THANKS for guidance:
-    // http://www.sqlite.org/cgi/src/artifact/43916c1d8e6da5d1
-    // (src/func.c:hexFunc)
-    sqlite3_value * first = argv[0];
-
-    const uint8_t * in = sqlite3_value_text16le(first);
-
-    const int inlen = sqlite3_value_bytes16(first);
-
-    uint8_t * out = sqlite3_malloc(inlen);
-
-    int i;
-
-    for (i=0; i<inlen; i += 2) {
-      uint8_t u0 = in[i];
-      uint8_t u1 = in[i+1];
-
-      uint16_t u = (u1 << 8) | u0;
-
-      if (u < EU_MAP_SIZE) {
-        int16_t uo = eu_lower_map[u];
-        out[i] = uo & 0xff;
-        out[i+1] = uo >> 8;
-      } else {
-        out[i] = u0;
-        out[i+1] = u1;
-      }
-    }
-
-    sqlite3_result_text16le(context, out, inlen, sqlite3_free);
-  }
+  apply_eu_string_map(eu_lower_map, context, argc, argv);
 }
 
 int sqlite3_eu_init(sqlite3 * db, const char * upper_eu_name, const char * lower_eu_name)
