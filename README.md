@@ -41,3 +41,7 @@ int main() {
 - build `test` and run executable as follows (on a `*nix` workstation):
   - `cc test.c sqlite3.c sqlite3_eu.c -o test`
   - `./test`
+
+## Known quirks
+
+- Statements such as `SELECT LOWER_EU(9e999)` return results like `ınf`
