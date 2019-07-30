@@ -43,7 +43,7 @@ int main() {
 
   TESTLOG("TRY SELECT UPPER_EU with empty string");
 
-  sqlite3_exec(db, "SELECT UPPER_EU('')", assert_result_is_null, NULL, NULL);
+  sqlite3_exec(db, "SELECT UPPER_EU('')", assert_result_matches, "", NULL);
 
   TESTLOG("TRY SELECT LOWER_EU with mixed string");
 
