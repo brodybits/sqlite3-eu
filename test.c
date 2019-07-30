@@ -50,5 +50,36 @@ int main() {
   sqlite3_exec(db, "SELECT LOWER_EU('DE100 😊 Chris DEF 😊 ẞ 😊 Á 😊 É 😊 €456')",
     assert_result_matches, "de100 😊 chris def 😊 ß 😊 á 😊 é 😊 €456", NULL);
 
+  // TBD STRANGE RESULT for this operation:
+  TESTLOG("SELECT LOWER_EU(9e999)");
+  sqlite3_exec(db, "SELECT LOWER_EU(9e999)",
+    assert_result_matches, "ınf", NULL);
+
+  // TBD STRANGE RESULT for this operation:
+  TESTLOG("SELECT HEX(LOWER_EU(9e999))");
+  sqlite3_exec(db, "SELECT HEX(LOWER_EU(9e999))",
+    assert_result_matches, "C4B16E66", NULL);
+
+  TESTLOG("SELECT LOWER_EU(null)");
+  sqlite3_exec(db, "SELECT LOWER_EU(null)", assert_result_is_null, NULL, NULL);
+
+  // TEST TODO: check that all UPPER_EU / LOWER_EU entries
+  // are mapped correctly
+  // (and none would be broken in the future)
+
+  // built-in UPPER / LOWER tests for comparison:
+
+  TESTLOG("TRY SELECT UPPER('') for comparison");
+  sqlite3_exec(db, "SELECT UPPER('')", assert_result_matches, "", NULL);
+
+  TESTLOG("SELECT LOWER(9e999) for comparison");
+  sqlite3_exec(db, "SELECT LOWER(9e999)", assert_result_matches, "inf", NULL);
+
+  TESTLOG("SELECT HEX(LOWER(9e999)) for comparison");
+  sqlite3_exec(db, "SELECT HEX(LOWER(9e999))", assert_result_matches, "696E66", NULL);
+
+  TESTLOG("SELECT LOWER(null) for comparison");
+  sqlite3_exec(db, "SELECT LOWER(null)", assert_result_is_null, NULL, NULL);
+
   return 0;
 }
