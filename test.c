@@ -1,11 +1,31 @@
 #include "sqlite3_eu.h"
 
+#include <assert.h>
+
 #include <stdio.h>
 
-int cb(void * ignored1, int result_count, char ** result, char ** ignored2)
+#include <string.h>
+
+#define TESTTRACE(...) printf(__VA_ARGS__)
+
+#define TESTLOG(text) printf("* %s\n", text)
+
+int assert_result_matches(void * expected_vp, int result_count, char ** result, char ** ignored2)
 {
-  printf("result count: %d\n", result_count);
-  printf("first result: %s\n", result[0]);
+  const char * expected = (const char *) expected_vp;
+
+  assert(result_count == 1);
+  TESTTRACE("check string result: %s\n", result[0]);
+  assert(!strcmp(result[0], expected));
+  TESTTRACE("- OK\n\n");
+  return 0;
+}
+
+int assert_result_is_null(void * ignored, int result_count, char ** result, char ** ignored2)
+{
+  assert(result_count == 1);
+  assert(result[0] == NULL);
+  TESTTRACE("- OK\n\n");
   return 0;
 }
 
@@ -15,17 +35,19 @@ int main() {
 
   sqlite3_eu_init(db, "UPPER_EU", "LOWER_EU");
 
-  printf("* TRY SELECT UPPER_EU with mixed string:\n");
+  TESTLOG("TRY SELECT UPPER_EU with mixed string");
 
-  sqlite3_exec(db, "SELECT UPPER_EU('Alice 😊 é 😊 á 😊 ß 😊 €123')", cb, NULL, NULL);
+  sqlite3_exec(db, "SELECT UPPER_EU('Alice 😊 é 😊 á 😊 ß 😊 €123')",
+    assert_result_matches, "ALICE 😊 É 😊 Á 😊 ẞ 😊 €123", NULL);
 
-  printf("* TRY SELECT UPPER_EU with empty string:\n");
+  TESTLOG("TRY SELECT UPPER_EU with empty string");
 
-  sqlite3_exec(db, "SELECT UPPER_EU('')", cb, NULL, NULL);
+  sqlite3_exec(db, "SELECT UPPER_EU('')", assert_result_is_null, NULL, NULL);
 
-  printf("* TRY SELECT LOWER_EU with mixed string:\n");
+  TESTLOG("TRY SELECT LOWER_EU with mixed string");
 
-  sqlite3_exec(db, "SELECT LOWER_EU('DE100 😊 Chris DEF 😊 ẞ 😊 Á 😊 É 😊 €456')", cb, NULL, NULL);
+  sqlite3_exec(db, "SELECT LOWER_EU('DE100 😊 Chris DEF 😊 ẞ 😊 Á 😊 É 😊 €456')",
+    assert_result_matches, "de100 😊 chris def 😊 ß 😊 á 😊 é 😊 €456", NULL);
 
   return 0;
 }
