@@ -34,3 +34,10 @@ int main() {
   return 0;
 }
 ```
+
+## How to test
+
+- obtain `sqlite3.h` and `sqlite3.c` from recent SQLite amalgamation
+- build `test` and run executable as follows (on a `*nix` workstation):
+  - `cc test.c sqlite3.c sqlite3_eu.c -o test`
+  - `./test`
