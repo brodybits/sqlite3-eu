@@ -50,6 +50,14 @@ int main() {
   sqlite3_exec(db, "SELECT LOWER_EU('DE100 😊 Chris DEF 😊 ẞ 😊 Á 😊 É 😊 €456')",
     assert_result_matches, "de100 😊 chris def 😊 ß 😊 á 😊 é 😊 €456", NULL);
 
+  // test for brodybits/sqlite3-eu#1
+  // ref:
+  // - https://github.com/brodybits/sqlite3-eu/pull/1
+  // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/34
+  TESTLOG("TRY SELECT UPPER_EU with mixed string - test brodybits/sqlite3-eu#1 (PR #1)");
+  sqlite3_exec(db, "SELECT UPPER_EU('đ ď ð abc')",
+    assert_result_matches, "Đ Ď Ð ABC", NULL);
+
   // TBD STRANGE RESULT for this operation:
   TESTLOG("SELECT LOWER_EU(9e999)");
   sqlite3_exec(db, "SELECT LOWER_EU(9e999)",
