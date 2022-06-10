@@ -12,8 +12,8 @@
 
 #define US_ASCII_MAX 0x7f
 
-static uint16_t eu_upper_map[EU_MAP_SIZE] = { 0x30 };
-static uint16_t eu_lower_map[EU_MAP_SIZE] = { 0x30 };
+static uint16_t eu_upper_map[EU_MAP_SIZE];
+static uint16_t eu_lower_map[EU_MAP_SIZE];
 
 #define EU_MAP_ENTRY(lower, upper) \
   do { \
