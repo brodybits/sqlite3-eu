@@ -1,0 +1,5 @@
+.*.swp
+*.orig
+*.rej
+sqlite3.*
+test
