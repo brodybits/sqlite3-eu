@@ -8,15 +8,49 @@
 
 #include <stdio.h>
 
+// for DEBUG_ASSERT macro below:
+#if defined(DEBUG) && !defined(NDEBUG)
+#include <assert.h>
+#endif
+
 #define EU_MAP_SIZE 0x2000
 
+// TBD consider limiting this to printable US-ASCII letters
+// ref: https://www.asciitable.com/
+#define US_ASCII_CHAR_MIN 0x30 // space
 #define US_ASCII_MAX 0x7f
 
 static uint16_t eu_upper_map[EU_MAP_SIZE];
 static uint16_t eu_lower_map[EU_MAP_SIZE];
 
+// DEBUG_ASSERT_ macro to help avoid an overwrite like this in the future:
+// EU_MAP_ENTRY(0x0131, 0x0049);
+#if defined(DEBUG) && !defined(NDEBUG)
+#define DEBUG_ASSERT_MAP_ENTRY_IS_IDENTICAL(lower, upper) \
+  do { \
+    assert(eu_upper_map[lower] == lower); \
+    assert(eu_lower_map[upper] == upper); \
+  } while(0)
+#else
+#define DEBUG_ASSERT_MAP_ENTRY_IS_IDENTICAL(lower, upper)  /* do nothing */
+#endif
+
+// lower --> upper
+#define EU_UPPER_MAP_ENTRY(lower, upper) \
+  do { \
+    eu_upper_map[lower] = upper; \
+  } while(0)
+
+// lower <-- upper
+#define EU_LOWER_MAP_ENTRY(lower, upper) \
+  do { \
+    eu_lower_map[upper] = lower; \
+  } while(0)
+
+// lower <--> upper
 #define EU_MAP_ENTRY(lower, upper) \
   do { \
+    DEBUG_ASSERT_MAP_ENTRY_IS_IDENTICAL(lower, upper); \
     eu_upper_map[lower] = upper; \
     eu_lower_map[upper] = lower; \
   } while(0)
@@ -26,17 +60,19 @@ void init_map() {
   {
     int i;
 
+    // identical by default:
     for (i=0; i<EU_MAP_SIZE; ++i) {
-      eu_upper_map[i] = i;
-      eu_lower_map[i] = i;
+      EU_UPPER_MAP_ENTRY(i, i);
+      EU_LOWER_MAP_ENTRY(i, i);
+      DEBUG_ASSERT_MAP_ENTRY_IS_IDENTICAL(i, i);
     }
 
-    for (i=0; i<US_ASCII_MAX; ++i) {
-      eu_upper_map[i] = toupper(i);
+    for (i=US_ASCII_CHAR_MIN; i<US_ASCII_MAX; ++i) {
+      EU_UPPER_MAP_ENTRY(i, toupper(i));
     }
 
-    for (i=0; i<US_ASCII_MAX; ++i) {
-      eu_lower_map[i] = tolower(i);
+    for (i=US_ASCII_CHAR_MIN; i<US_ASCII_MAX; ++i) {
+      EU_LOWER_MAP_ENTRY(tolower(i), i);
     }
   }
 
@@ -77,14 +113,12 @@ void init_map() {
   EU_MAP_ENTRY(0x00ED, 0x00CD);
   EU_MAP_ENTRY(0x00EE, 0x00CE);
   EU_MAP_ENTRY(0x00EF, 0x00CF);
-  // XXX TODO: NEED ONE-WAY MAPPING FOR U+0131 -> U+0049
-  // TO AVOID KNOWN ISSUE WITH SELECT LOWER_EU(9e999)
-  // OR SELECT LOWER_EU(-9e999)
-  // see cordova-sqlite-storage test suite ref:
+  // ONE-WAY MAPPING FOR U+0131 (`ı`) -> U+0049 (`I`)
+  // NOW FIXED to avoid issue with SELECT LOWER_EU('I')
+  // AND RESOLVE ISSUE with SELECT LOWER_EU(9e999) / SELECT LOWER_EU(-9e999)
+  // from cordova-sqlite-storage test suite ref:
   // - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec
-  // see also:
-  // - https://www.compart.com/en/unicode/U+0131
-  EU_MAP_ENTRY(0x0131, 0x0049);
+  EU_UPPER_MAP_ENTRY(0x0131, 0x0049);
   EU_MAP_ENTRY(0x012B, 0x012A);
   EU_MAP_ENTRY(0x012F, 0x012E);
   EU_MAP_ENTRY(0x0135, 0x0134);

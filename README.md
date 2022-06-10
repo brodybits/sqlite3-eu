@@ -39,16 +39,9 @@ int main() {
 
 - obtain `sqlite3.h` and `sqlite3.c` from recent SQLite amalgamation
 - build `test` and run executable as follows (on a `*nix` workstation):
-  - `cc test.c sqlite3.c sqlite3_eu.c -o test`
+  - `cc test.c sqlite3.c sqlite3_eu.c -DDEBUG -o test`
   - `./test`
-
-## Known mapping issue
-
-`SELECT LOWER_EU('I')` gives a result with U+0131 (`ı`)
-
-Here is a manifestation, based on the cordova-sqlite-storage test suite:
-
-- Statements such as `SELECT LOWER_EU(9e999)` return results like `ınf`
+- remove `-DDEBUG` flag to test this for a release build
 
 ## References
 

@@ -64,23 +64,22 @@ int main() {
   TESTLOG("TRY SELECT UPPER_EU('ı') - should be one-way mapping");
   sqlite3_exec(db, "SELECT UPPER_EU('ı')", assert_result_matches, "I", NULL);
 
-  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
-  TESTLOG("TRY SELECT LOWER_EU('I') - KNOWN ISSUE AT THIS POINT");
-  sqlite3_exec(db, "SELECT LOWER_EU('I')", assert_result_matches, "\u0131", NULL);
+  TESTLOG("TRY SELECT LOWER_EU('I') - VERIFY BUG FIX");
+  sqlite3_exec(db, "SELECT LOWER_EU('I')", assert_result_matches, "i", NULL);
 
-  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
-  // TBD STRANGE RESULT for this operation,
+  // AVOID BREAKING THIS CASE AGAIN:
   // see cordova-sqlite-storage test suite ref:
   // - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec
   TESTLOG("SELECT LOWER_EU(9e999)");
   sqlite3_exec(db, "SELECT LOWER_EU(9e999)",
-    assert_result_matches, "ınf", NULL);
+    assert_result_matches, "inf", NULL);
 
-  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
-  // TBD STRANGE RESULT for this operation:
+  // AVOID BREAKING THIS CASE AGAIN:
+  // see cordova-sqlite-storage test suite ref:
+  // - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec
   TESTLOG("SELECT HEX(LOWER_EU(9e999))");
   sqlite3_exec(db, "SELECT HEX(LOWER_EU(9e999))",
-    assert_result_matches, "C4B16E66", NULL);
+    assert_result_matches, "696E66", NULL);
 
   TESTLOG("SELECT LOWER_EU(null)");
   sqlite3_exec(db, "SELECT LOWER_EU(null)", assert_result_is_null, NULL, NULL);
