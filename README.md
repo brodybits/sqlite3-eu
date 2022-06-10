@@ -42,6 +42,18 @@ int main() {
   - `cc test.c sqlite3.c sqlite3_eu.c -o test`
   - `./test`
 
-## Known quirks
+## Known mapping issue
+
+`SELECT LOWER_EU('I')` gives a result with U+0131 (`ı`)
+
+Here is a manifestation, based on the cordova-sqlite-storage test suite:
 
 - Statements such as `SELECT LOWER_EU(9e999)` return results like `ınf`
+
+## References
+
+- https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/21
+- https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/50#issuecomment-498858058
+- https://www.compart.com/en/unicode/U+0131
+- cordova-sqlite-storage test suite ref:
+  - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec

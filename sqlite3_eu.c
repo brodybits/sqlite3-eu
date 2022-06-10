@@ -40,6 +40,9 @@ void init_map() {
     }
   }
 
+  // references:
+  // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/21
+  // - https://github.com/storesafe/cordova-sqlite-evcore-extbuild-free/issues/50#issuecomment-498858058
   EU_MAP_ENTRY(0x00E4, 0x00C4);
   EU_MAP_ENTRY(0x00E0, 0x00C0);
   EU_MAP_ENTRY(0x00E1, 0x00C1);
@@ -74,6 +77,13 @@ void init_map() {
   EU_MAP_ENTRY(0x00ED, 0x00CD);
   EU_MAP_ENTRY(0x00EE, 0x00CE);
   EU_MAP_ENTRY(0x00EF, 0x00CF);
+  // XXX TODO: NEED ONE-WAY MAPPING FOR U+0131 -> U+0049
+  // TO AVOID KNOWN ISSUE WITH SELECT LOWER_EU(9e999)
+  // OR SELECT LOWER_EU(-9e999)
+  // see cordova-sqlite-storage test suite ref:
+  // - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec
+  // see also:
+  // - https://www.compart.com/en/unicode/U+0131
   EU_MAP_ENTRY(0x0131, 0x0049);
   EU_MAP_ENTRY(0x012B, 0x012A);
   EU_MAP_ENTRY(0x012F, 0x012E);

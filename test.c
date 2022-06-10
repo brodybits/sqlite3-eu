@@ -58,11 +58,25 @@ int main() {
   sqlite3_exec(db, "SELECT UPPER_EU('đ ď ð abc')",
     assert_result_matches, "Đ Ď Ð ABC", NULL);
 
-  // TBD STRANGE RESULT for this operation:
+  // ref:
+  // - https://www.compart.com/en/unicode/U+0131
+  // - https://github.com/mobilexag/cordova-sqlite-evplus-ext-free/issues/21
+  TESTLOG("TRY SELECT UPPER_EU('ı') - should be one-way mapping");
+  sqlite3_exec(db, "SELECT UPPER_EU('ı')", assert_result_matches, "I", NULL);
+
+  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
+  TESTLOG("TRY SELECT LOWER_EU('I') - KNOWN ISSUE AT THIS POINT");
+  sqlite3_exec(db, "SELECT LOWER_EU('I')", assert_result_matches, "\u0131", NULL);
+
+  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
+  // TBD STRANGE RESULT for this operation,
+  // see cordova-sqlite-storage test suite ref:
+  // - https://github.com/storesafe/cordova-sqlite-storage/tree/6.0.0/spec
   TESTLOG("SELECT LOWER_EU(9e999)");
   sqlite3_exec(db, "SELECT LOWER_EU(9e999)",
     assert_result_matches, "ınf", NULL);
 
+  // XXX KNOWN ISSUE REPRODUCED AT THIS POINT:
   // TBD STRANGE RESULT for this operation:
   TESTLOG("SELECT HEX(LOWER_EU(9e999))");
   sqlite3_exec(db, "SELECT HEX(LOWER_EU(9e999))",
